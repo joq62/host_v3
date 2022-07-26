@@ -30,4 +30,4 @@ eunit:
 	rebar3 compile;
 	cp _build/default/lib/*/ebin/* ebin;
 	erlc -o test_ebin test/*.erl;
-	erl -pa ebin -pa test_ebin -sname test -run basic_eunit start -setcookie test_cookie
+	erl -pa ebin -pa test_ebin -sname test -run basic_eunit start -setcookie test_cookie -hidden
