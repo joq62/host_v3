@@ -1,0 +1,12 @@
+[{<<"common">>,
+  {git,"https://github.com/joq62/common.git",
+       {ref,"063630ffcf79073f46cc572affa44ecd015d8fa6"}},
+  0},
+ {<<"config">>,
+  {git,"https://github.com/joq62/config.git",
+       {ref,"f27eeaf626b1c1d3c8e4f5327c374723eae9371f"}},
+  0},
+ {<<"etcd">>,
+  {git,"https://github.com/joq62/etcd.git",
+       {ref,"286c6d8d179654d30018ab400bb766fd15ca9713"}},
+  0}].
