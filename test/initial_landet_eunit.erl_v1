@@ -40,9 +40,8 @@
 %% --------------------------------------------------------------------
 start()->
 
-    % This code should be in cluster that creates the initial set up
+  
 
-    % 
     os:cmd("rm -rf Mnesia.c100@c100"),
     os:cmd("rm -rf Mnesia.c200@c200"),
     os:cmd("rm -rf Mnesia.c202@c202"),    

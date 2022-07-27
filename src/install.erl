@@ -9,18 +9,143 @@
 %%% Pod consits beams from all services, app and app and sup erl.
 %%% The setup of envs is
 %%% -------------------------------------------------------------------
--module(initial_landet_eunit).   
+-module(install).   
  
 -export([start/0]).
 %% --------------------------------------------------------------------
 %% Include files
+%% --------------------------------------------------------------------
+
+
+%% --------------------------------------------------------------------
+%% Function: available_hosts()
+%% Description: Based on hosts.config file checks which hosts are avaible
+%% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
+%% --------------------------------------------------------------------
+start()->
+    % This code should be in cluster that creates the initial set up
+    % 1.0 Start local and needed applications 
+    ok=application:start(common),
+    ok=application:start(config),
+    ok=install_etcd(),
+    
+    % Check available hosts
+    HostInfoList=db_host_spec:read_all(),
+    {Available,Missing}=check_hosts_status(HostInfoList),
+    Result=case Available of
+	       []->
+		   {error,[no_hosts_available]};
+	       Available->
+		   [InitialHost|Rest]=Available,
+		  case initial_install(InitialHost) of
+		      {error,Reason}->
+			   {error,Reason};
+		      ok->
+			  ok
+		  end
+	   end,
+    Result.
+
+%% --------------------------------------------------------------------
+%% Function: available_hosts()
+%% Description: Based on hosts.config file checks which hosts are avaible
+%% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
+%% --------------------------------------------------------------------
+
+%% --------------------------------------------------------------------
+%% Function: available_hosts()
+%% Description: Based on hosts.config file checks which hosts are avaible
+%% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
+%% --------------------------------------------------------------------
+initial_install(InitialHost)->
+    {InitialHost,Ip,_,Port,User,Password,_}=db_host_spec:read(InitialHost),
+    BaseDir=InitialHost,
+    NodeName=InitialHost, 
+    TimeOut=7000,
+    Cookie=atom_to_list(erlang:get_cookie()),
+    
+    %% Create host vm
+    my_ssh:ssh_send(Ip,Port,User,Password,"rm -rf "++BaseDir,TimeOut),
+    my_ssh:ssh_send(Ip,Port,User,Password,"mkdir "++BaseDir,TimeOut),
+    PaArgs=" ",
+    EnvArgs=" ",
+    {ok,Node}=vm:ssh_create(InitialHost,NodeName,Cookie,PaArgs,EnvArgs,
+			    {Ip,Port,User,Password,TimeOut}),  
+    
+    % load and start host 
+    App=host,
+    {ok,GitPath}=db_application_spec:read(gitpath,"host.spec"),
+    ApplDir=filename:join(BaseDir,atom_to_list(App)),
+    ok=rpc:call(Node,file,make_dir,[ApplDir]),
+    {ok,Dir}=appl:git_clone_to_dir(Node,GitPath,ApplDir),
+    ok=appl:load(Node,App,[filename:join([BaseDir,atom_to_list(App),"ebin"])]),
+    ok=appl:start(Node,App),
+    {ok,Dir}.
+    
+			  
+
+
+%% --------------------------------------------------------------------
+%% Function: available_hosts()
+%% Description: Based on hosts.config file checks which hosts are avaible
+%% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
+%% --------------------------------------------------------------------
+check_hosts_status(HostInfoList)->
+    check_hosts_status(HostInfoList,[]).
+
+check_hosts_status([],HostStatus)->
+    Available=[HostName||{HostName,R}<-HostStatus,
+			 ok=:=R],
+    Missing=[HostName||{HostName,R}<-HostStatus,
+		       ok=/=R],
+    {lists:sort(Available),lists:sort(Missing)};
+check_hosts_status([{HostName,Ip,IpExt,Port,User,Password,HwApp}|T],Acc) ->
+    TimeOut=infinity,
+    Check=my_ssh:ssh_send(Ip,Port,User,Password,"hostname ",TimeOut),
+   % io:format("Host,Check  ~p~n",[{HostName,Check}]),
+    NewAcc=case Check of
+	       [HostName]->
+		   [{HostName,ok}|Acc];
+	       ok->
+		   [{HostName,ok}|Acc];
+	       Reason->
+		   [{HostName,[error,Reason]}|Acc]
+	   end,
+		   
+    check_hosts_status(T,NewAcc).
+    
+
+%% --------------------------------------------------------------------
+%% Function: available_hosts()
+%% Description: Based on hosts.config file checks which hosts are avaible
+%% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
+%% --------------------------------------------------------------------
+install_etcd()->
+    ok=application:start(etcd),    
+    % Install etcd on this intial node used to create the other host nodes!!
+    ok=rpc:call(node(),dbase_lib,dynamic_install_start,[node()],5000),
+    ok=rpc:call(node(),db_host_spec,init_table,[node(),node()],10*1000),
+    ok=rpc:call(node(),db_application_spec,init_table,[node(),node()],10*1000),
+    ok=rpc:call(node(),db_deployment_info,init_table,[node(),node()],10*1000),
+    ok=rpc:call(node(),db_deployments,init_table,[node(),node()],10*1000),    
+    ok.
+
+%% --------------------------------------------------------------------
+%% Function: available_hosts()
+%% Description: Based on hosts.config file checks which hosts are avaible
+%% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
+%% --------------------------------------------------------------------
+
+%% --------------------------------------------------------------------
+%% Function: available_hosts()
+%% Description: Based on hosts.config file checks which hosts are avaible
+%% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
 %% --------------------------------------------------------------------
 -define(IpC100,"192.168.1.100").
 -define(Port,22).
 -define(UserC100,"joq62").
 -define(PasswordC100,"festum01").
 -define(TimeOut,6000).
-
 -define(IpC200,"192.168.1.200").
 -define(UserC200,"ubuntu").
 -define(PasswordC200,"festum01").
@@ -33,14 +158,8 @@
 -define(EnvArgs," "). 
 -define(PaArgsInit," ").
 
-%% --------------------------------------------------------------------
-%% Function: available_hosts()
-%% Description: Based on hosts.config file checks which hosts are avaible
-%% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
-%% --------------------------------------------------------------------
-start()->
+start_1()->
 
-    % This code should be in cluster that creates the initial set up
 
     % 
     os:cmd("rm -rf Mnesia.c100@c100"),

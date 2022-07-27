@@ -26,10 +26,6 @@
 -define(Password,"festum01").
 -define(TimeOut,6000).
 
--define(HostName,"c100").
--define(NodeName,"TestVm").
--define(Node,'TestVm@c100').
--define(NodeDir,"test_vm_dir").
 -define(Cookie,atom_to_list(erlang:get_cookie())).
 -define(EnvArgs," "). 
 -define(PaArgsInit,"-pa /home/joq62/erlang/infra_2/host/ebin").

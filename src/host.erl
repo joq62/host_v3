@@ -22,6 +22,9 @@
 
 %% External exports
 -export([
+
+	 install/0,
+	 
 	 cluster_id/0,
 	 
 	 desired_state_check/0,
@@ -76,6 +79,10 @@ stop()-> gen_server:call(?SERVER, {stop},infinity).
 
 
 %% ====================================================================
+install()-> 
+    gen_server:call(?SERVER, {install},infinity).
+
+
 cluster_id()-> 
     gen_server:call(?SERVER, {cluster_id},infinity).
 %% 
@@ -120,6 +127,11 @@ init([]) ->
 %%          {stop, Reason, Reply, State}   | (terminate/2 is called)
 %%          {stop, Reason, State}            (terminate/2 is called)
 %% --------------------------------------------------------------------
+
+handle_call({install},_From, State) ->
+    Reply=install:start(),
+    io:format("mnesia:system_info() ~p~n",[rpc:call(node(),mnesia,system_info,[])]),
+    {reply, Reply, State};
 
 handle_call({ping},_From, State) ->
     Reply=pong,

@@ -9,4 +9,12 @@
  {<<"etcd">>,
   {git,"https://github.com/joq62/etcd.git",
        {ref,"aa8577380a02976720cfca3dabd8f4f7a4ff5056"}},
+  0},
+ {<<"leader">>,
+  {git,"https://github.com/joq62/leader.git",
+       {ref,"08daefa808f401dd32997f6daa88d9c26c5706a8"}},
+  0},
+ {<<"nodelog">>,
+  {git,"https://github.com/joq62/nodelog.git",
+       {ref,"dd5568823d745f83f44000cd0ffd59f735c9eb62"}},
   0}].
