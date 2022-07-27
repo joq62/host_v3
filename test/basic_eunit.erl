@@ -22,7 +22,7 @@
 %% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
 %% --------------------------------------------------------------------
 start()->
-    ok=initial_eunit:start(),
+    ok=initial_landet_eunit:start(),
     io:format("TEST OK! ~p~n",[?MODULE]),
     timer:sleep(1000),
     init:stop(),
