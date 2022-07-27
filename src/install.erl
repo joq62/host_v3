@@ -37,12 +37,10 @@ start()->
 		   {error,[no_hosts_available]};
 	       Available->
 		   [InitialHost|Rest]=Available,
-		  case initial_install(InitialHost) of
-		      {error,Reason}->
-			   {error,Reason};
-		      ok->
-			  ok
-		  end
+		   CreateResult=[{create_load_host(Host),Host}||Host<-Available],
+		   % {{ok,Node,Dir},Host}
+		   CreateResult
+		 
 	   end,
     Result.
 
@@ -51,25 +49,31 @@ start()->
 %% Description: Based on hosts.config file checks which hosts are avaible
 %% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
 %% --------------------------------------------------------------------
+install_all(Rest,InitialNode)->
+    install_all(Rest,InitialNode,[]).
 
+install_all([],_InitialNode,Result)->
+    Result;
+install_all([Host|T],InitialNode,Acc) ->
+    {ok,Node,Dir}=create_load_host(Host).
 %% --------------------------------------------------------------------
 %% Function: available_hosts()
 %% Description: Based on hosts.config file checks which hosts are avaible
 %% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
 %% --------------------------------------------------------------------
-initial_install(InitialHost)->
-    {InitialHost,Ip,_,Port,User,Password,_}=db_host_spec:read(InitialHost),
-    BaseDir=InitialHost,
-    NodeName=InitialHost, 
+create_load_host(Host)->
+    {Host,Ip,_,Port,User,Password,_}=db_host_spec:read(Host),
+    BaseDir=Host,
+    NodeName=Host, 
     TimeOut=7000,
     Cookie=atom_to_list(erlang:get_cookie()),
     
     %% Create host vm
     my_ssh:ssh_send(Ip,Port,User,Password,"rm -rf "++BaseDir,TimeOut),
     my_ssh:ssh_send(Ip,Port,User,Password,"mkdir "++BaseDir,TimeOut),
-    PaArgs=" ",
+    PaArgs=" -hidden ",
     EnvArgs=" ",
-    {ok,Node}=vm:ssh_create(InitialHost,NodeName,Cookie,PaArgs,EnvArgs,
+    {ok,Node}=vm:ssh_create(Host,NodeName,Cookie,PaArgs,EnvArgs,
 			    {Ip,Port,User,Password,TimeOut}),  
     
     % load and start host 
@@ -80,7 +84,7 @@ initial_install(InitialHost)->
     {ok,Dir}=appl:git_clone_to_dir(Node,GitPath,ApplDir),
     ok=appl:load(Node,App,[filename:join([BaseDir,atom_to_list(App),"ebin"])]),
     ok=appl:start(Node,App),
-    {ok,Dir}.
+    {ok,Node,Dir}.
     
 			  
 
