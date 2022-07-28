@@ -125,9 +125,13 @@ desired_state_check()->
 %%          {stop, Reason}
 %% --------------------------------------------------------------------
 init([]) ->
-    {ok,Nodes}=application:get_env(nodes),
-    application:set_env([{leader_node,[{nodes,Nodes}]}]),
-    ok=application:start(leader_node),
+    case application:get_env(nodes) of
+	undefined->
+	    started_in_install_mode;
+	{ok,Nodes}->
+	    application:set_env([{leader_node,[{nodes,Nodes}]}]),
+	    ok=application:start(leader_node)
+    end,
     {ok, #state{
 	    start_time={date(),time()}
 	   }

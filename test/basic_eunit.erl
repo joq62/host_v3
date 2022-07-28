@@ -22,7 +22,7 @@
 %% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
 %% --------------------------------------------------------------------
 start()->
-
+    
     ok=application:start(host),
     io:format("install:etcd()  ~p~n",[install:etcd()]),
     io:format("install:hosts()  ~p~n",[install:hosts()]),
