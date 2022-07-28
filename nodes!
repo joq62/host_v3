@@ -1,0 +1,35 @@
+rm -rf  *~ */*~  src/*.beam test/*.beam erl_cra*;
+rm -rf  host_info_specs deployments application_info_specs deployment_info_specs;
+rm -rf Mnesia.*
+rm -rf _build test_ebin ebin;
+rm -rf rebar.lock;
+mkdir ebin;		
+rebar3 compile;	
+[0;32m===> Fetching rebar3_proper v0.12.1
+[0m[0;32m===> Version cached at /home/joq62/.cache/rebar3/hex/hexpm/packages/rebar3_proper-0.12.1.tar is up to date, reusing it
+[0m[0;32m===> Compiling rebar3_proper
+[0m[0;32m===> Verifying dependencies...
+[0m[0;32m===> Fetching common (from {git,"https://github.com/joq62/common.git",{branch,"main"}})
+[0m[0;32m===> Fetching config (from {git,"https://github.com/joq62/config.git",{branch,"main"}})
+[0m[0;32m===> Fetching etcd (from {git,"https://github.com/joq62/etcd.git",{branch,"main"}})
+[0m[0;32m===> Fetching leader_node (from {git,"https://github.com/joq62/leader_node.git",
+                       {branch,"main"}})
+[0m[0;32m===> Fetching nodelog (from {git,"https://github.com/joq62/nodelog.git",{branch,"main"}})
+[0m[0;32m===> Compiling etcd
+[0m_build/default/lib/etcd/src/db_application_spec.erl:3: Warning: export_all flag enabled - all functions will be exported
+
+_build/default/lib/etcd/src/db_deployment_info.erl:3: Warning: export_all flag enabled - all functions will be exported
+
+_build/default/lib/etcd/src/db_deployments.erl:3: Warning: export_all flag enabled - all functions will be exported
+
+_build/default/lib/etcd/src/db_host_spec.erl:3: Warning: export_all flag enabled - all functions will be exported
+
+[0;32m===> Compiling nodelog
+[0m[0;32m===> Compiling leader_node
+[0m[0;32m===> Compiling config
+[0m[0;32m===> Compiling common
+[0m_build/default/lib/common/src/dbase_lib.erl:47: Warning: variable 'IntialNode' is unused
+
+
+BREAK: (a)bort (c)ontinue (p)roc info (i)nfo (l)oaded
+       (v)ersion (k)ill (D)b-tables (d)istribution

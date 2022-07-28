@@ -164,12 +164,12 @@ create_load_host(Host)->
     ok=appl:load(Node,App,[filename:join([BaseDir,atom_to_list(App),"ebin"])]),
     
     %% Set up nodes for leader_node
-    Nodes=db_host_spec:get_all_hostnames(),
+    Nodes=[list_to_atom(HostName++"@"++HostName)||HostName<-db_host_spec:get_all_hostnames()],
     ok=rpc:call(Node,application,set_env,[[{host,[{nodes,Nodes}]}]],5000),
     ok=appl:start(Node,App),
- %   ok=rpc:call(Node,application,start,[leader_node]),
- %   pong=rpc:call(Node,leader_node,ping,[]),
- %   rpc:cast(Node,leader_node,start_election,[]),
+    ok=rpc:call(Node,application,start,[leader_node]),
+    pong=rpc:call(Node,leader_node,ping,[]),
+    rpc:cast(Node,leader_node,start_election,[]),
     {ok,Node,Dir}.
     
 			  

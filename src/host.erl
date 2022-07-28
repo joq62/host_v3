@@ -125,14 +125,14 @@ desired_state_check()->
 %%          {stop, Reason}
 %% --------------------------------------------------------------------
 init([]) ->
-    case application:get_env(nodes) of
-	undefined->
-	    started_in_install_mode;
-	{ok,Nodes}->
-	    application:set_env([{leader_node,[{nodes,Nodes}]}]),
-	    ok=application:start(leader_node)
+ %   case application:get_env(nodes) of
+%	undefined->
+%	    started_in_install_mode;
+%	{ok,Nodes}->
+%	    application:set_env([{leader_node,[{nodes,Nodes}]}]),
+%	    ok=application:start(leader_node)
 	   % rpc:cast(node(),leader_node,start_election,[])
-    end,
+ %   end,
     {ok, #state{
 	    start_time={date(),time()}
 	   }
