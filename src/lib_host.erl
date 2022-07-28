@@ -166,6 +166,7 @@ create_load_host(Host)->
     Nodes=db_host_spec:get_all_hostnames(),
     ok=rpc:call(Node,application,set_env,[[{leader_node,[{nodes,Nodes}]}]],5000),
     ok=appl:start(Node,App),
+    ok=rpc:call(Node,application,start,[leader_node]),
     rpc:cast(Node,leader_node,start_election,[]),
     {ok,Node,Dir}.
     
