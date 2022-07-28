@@ -125,6 +125,11 @@ desired_state_check()->
 %%          {stop, Reason}
 %% --------------------------------------------------------------------
 init([]) ->
+    {ok,HostName}=net:gethostname(),
+    LogFile=filename:join([HostName,"logs"]),
+    ok=rpc:call(node(),application,start,[nodelog],5000),
+    ok=rpc:call(node(),nodelog,create,[LogFile],5000),
+
     case application:get_env(nodes) of
 	undefined->
 	    started_in_install_mode;

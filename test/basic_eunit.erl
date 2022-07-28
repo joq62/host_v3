@@ -62,7 +62,6 @@ start()->
     ok.
 
 
-
 %% --------------------------------------------------------------------
 %% Function: available_hosts()
 %% Description: Based on hosts.config file checks which hosts are avaible
