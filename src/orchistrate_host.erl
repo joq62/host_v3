@@ -46,7 +46,7 @@ start()->
 create(Host)->
     {ok,Node,_Dir}=lib_host:create_load_host(Host),
     ok=rpc:call(Node,application,start,[etcd]),
-    ok=dbase_lib:dynamic_install([Node],node()),
+ %   ok=dbase_lib:dynamic_install([Node],node()),
     ok.
     
 %% --------------------------------------------------------------------
