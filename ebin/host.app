@@ -5,6 +5,6 @@
               {mod,{host_app,[]}},
               {applications,[kernel,stdlib]},
               {env,[]},
-              {modules,[host,host_app,host_sup,install]},
+              {modules,[host,host_app,host_sup,install,lib_host]},
               {licenses,["Apache 2.0"]},
               {links,[]}]}.

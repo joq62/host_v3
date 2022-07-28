@@ -23,7 +23,22 @@
 %% --------------------------------------------------------------------
 start()->
     ok=application:start(host),
-    io:format("host:install()  ~p~n",[host:install()]),
+    io:format("install:etcd()  ~p~n",[install:etcd()]),
+    
+    io:format("servers_alive   ~p~n",[lib_host:which_servers_alive()]),
+    io:format("servers_dead   ~p~n",[lib_host:which_servers_dead()]),
+
+    io:format("host_vms_alive   ~p~n",[lib_host:which_host_vms_alive()]),
+    io:format("host_vms_dead   ~p~n",[lib_host:which_host_vms_dead()]),
+
+    io:format("hosts_alive   ~p~n",[lib_host:which_hosts_alive()]),
+    io:format("hosts_dead   ~p~n",[lib_host:which_hosts_dead()]),
+
+    io:format("c100   ~p~n",[host:is_server_alive("c100")]),
+    io:format("c200   ~p~n",[host:is_server_alive("c200")]),
+    io:format("c201   ~p~n",[host:is_server_alive("c201")]),
+    io:format("c202   ~p~n",[host:is_server_alive("c202")]),
+    io:format("c300   ~p~n",[host:is_server_alive("c300")]),
     io:format("TEST OK! ~p~n",[?MODULE]),
   %  timer:sleep(1000),
  %   init:stop(),

@@ -25,6 +25,11 @@
 
 	 install/0,
 	 
+
+	 is_server_alive/1,
+	 check_host_status/1,
+	 create_load_host/1,
+	 
 	 cluster_id/0,
 	 
 	 desired_state_check/0,
@@ -83,6 +88,15 @@ install()->
     gen_server:call(?SERVER, {install},infinity).
 
 
+is_server_alive(HostName)->
+    gen_server:call(?SERVER, {is_server_alive,HostName},infinity).
+
+check_host_status(HostName)->
+    gen_server:call(?SERVER, {check_host_status,HostName},infinity).
+
+create_load_host(HostName)->
+    gen_server:call(?SERVER, {create_load_host,HostName},infinity).
+
 cluster_id()-> 
     gen_server:call(?SERVER, {cluster_id},infinity).
 %% 
@@ -128,9 +142,23 @@ init([]) ->
 %%          {stop, Reason, State}            (terminate/2 is called)
 %% --------------------------------------------------------------------
 
+
+
+handle_call({is_server_alive,HostName},_From, State) ->
+    Reply=lib_host:is_server_alive(HostName),
+    {reply, Reply, State};
+
+handle_call({check_host_status,HostName},_From, State) ->
+    Reply=lib_host:check_host_status(HostName),
+    {reply, Reply, State};
+
+handle_call({create_load_host,HostName},_From, State) ->
+    Reply=lib_host:create_load_host(HostName),
+    {reply, Reply, State};
+
 handle_call({install},_From, State) ->
     Reply=install:start(),
-    io:format("mnesia:system_info() ~p~n",[rpc:call(node(),mnesia,system_info,[])]),
+ %   io:format("mnesia:system_info() ~p~n",[rpc:call(node(),mnesia,system_info,[])]),
     {reply, Reply, State};
 
 handle_call({ping},_From, State) ->
@@ -181,6 +209,11 @@ handle_cast(_Msg, State) ->
 %% --------------------------------------------------------------------
 handle_info({nodedown,Node}, State) ->
     io:format(" ~p~n",[{?MODULE,?LINE,nodedown,Node}]),
+    {noreply, State};
+
+
+handle_info({ssh_cm,_,_}, State) ->
+  %  io:format("ssh_cm ~p~n",[{?MODULE,?LINE}]),
     {noreply, State};
 
 handle_info(Info, State) ->

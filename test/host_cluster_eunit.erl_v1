@@ -1,0 +1,136 @@
+%%% -------------------------------------------------------------------
+%%% @author  : Joq Erlang
+%%% @doc: : 
+%%% Created :
+%%% Node end point  
+%%% Creates and deletes Pods
+%%% 
+%%% API-kube: Interface 
+%%% Pod consits beams from all services, app and app and sup erl.
+%%% The setup of envs is
+%%% -------------------------------------------------------------------
+-module(host_cluster_eunit).   
+ 
+-export([start/0]).
+%% --------------------------------------------------------------------
+%% Include files
+%% --------------------------------------------------------------------
+
+
+%% --------------------------------------------------------------------
+%% Function: available_hosts()
+%% Description: Based on hosts.config file checks which hosts are avaible
+%% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
+%% --------------------------------------------------------------------
+start()->
+
+    io:format("TEST OK! ~p~n",[?MODULE]),
+    timer:sleep(1000),
+    ok.
+
+
+%% --------------------------------------------------------------------
+%% Function: available_hosts()
+%% Description: Based on hosts.config file checks which hosts are avaible
+%% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
+%% --------------------------------------------------------------------
+load_start_appl(Node,BaseDir,GitPath,App)->
+    ApplDir=filename:join(BaseDir,atom_to_list(App)),
+    ok=rpc:call(Node,file,make_dir,[ApplDir]),
+    {ok,Dir}=appl:git_clone_to_dir(Node,GitPath,ApplDir),
+    ok=appl:load(Node,App,[filename:join([BaseDir,atom_to_list(App),"ebin"])]),
+    ok=appl:start(Node,App),
+    {ok,Dir}.
+%% --------------------------------------------------------------------
+%% Function: available_hosts()
+%% Description: Based on hosts.config file checks which hosts are avaible
+%% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
+%% --------------------------------------------------------------------
+create_dir_start_vm(Ip,Port,User,Password,TimeOut,
+		    HostName,NodeName,BaseDir)->
+    
+    my_ssh:ssh_send(Ip,Port,User,Password,"rm -rf "++BaseDir,TimeOut),
+    my_ssh:ssh_send(Ip,Port,User,Password,"mkdir "++BaseDir,TimeOut),
+   
+    {ok,Node}=vm:ssh_create(HostName,NodeName,?Cookie,"-hidden",?EnvArgs,
+			    {Ip,Port,User,Password,TimeOut}),
+
+    {ok,Node}.
+
+%% --------------------------------------------------------------------
+%% Function: available_hosts()
+%% Description: Based on hosts.config file checks which hosts are avaible
+%% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
+%% --------------------------------------------------------------------
+copy_spec_dirs(Node,BaseDir)->
+
+    []=rpc:call(Node,os,cmd,["rm -rf "++filename:join(BaseDir,"application_info_specs")]),
+    timer:sleep(1000),
+    ok=rpc:call(Node,file,make_dir,[filename:join(BaseDir,"application_info_specs")]),    
+    copy_dir(node(),"application_info_specs",Node,filename:join(BaseDir,"application_info_specs")),
+
+    []=rpc:call(Node,os,cmd,["rm -rf "++filename:join(BaseDir,"deployment_info_specs")]),
+    timer:sleep(1000),
+    ok=rpc:call(Node,file,make_dir,[filename:join(BaseDir,"deployment_info_specs")]),    
+    copy_dir(node(),"deployment_info_specs",Node,filename:join(BaseDir,"deployment_info_specs")),
+
+    []=rpc:call(Node,os,cmd,["rm -rf "++filename:join(BaseDir,"deployments")]),
+    timer:sleep(1000),
+    ok=rpc:call(Node,file,make_dir,[filename:join(BaseDir,"deployments")]),    
+    copy_dir(node(),"deployments",Node,filename:join(BaseDir,"deployments")),
+
+    []=rpc:call(Node,os,cmd,["rm -rf "++filename:join(BaseDir,"host_info_specs")]),
+    timer:sleep(1000),
+    ok=rpc:call(Node,file,make_dir,[filename:join(BaseDir,"host_info_specs")]),    
+    copy_dir(node(),"host_info_specs",Node,filename:join(BaseDir,"host_info_specs")),
+    ok.
+%% --------------------------------------------------------------------
+%% Function: available_hosts()
+%% Description: Based on hosts.config file checks which hosts are avaible
+%% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
+%% --------------------------------------------------------------------
+copy_dir(SourceNode,SourceDir,DetsNode,DestDir)->
+    {ok,BaseFiles}=rpc:call(SourceNode,file,list_dir,[SourceDir],5000),
+    SourceDestFiles=[{filename:join(["./",SourceDir,FileName]),
+		      filename:join(["./",DestDir,FileName])}||FileName<-BaseFiles,
+							       false=:=filelib:is_dir(filename:join(["./",SourceDir,FileName]))],
+    [read_write_file(SourceNode,SourceFile,DetsNode,DestFile)||{SourceFile,DestFile}<-SourceDestFiles].
+			    
+
+
+read_write_file(SourceNode,SourceFile,DetsNode,DestFile)->
+%    io:format("SourceNode,SourceFile,DetsNode,DestFile ~p~n",[{SourceNode,SourceFile,DetsNode,DestFile}]), 
+    case rpc:call(SourceNode,file,read_file,[SourceFile],5000) of
+	{badrpc,Reason}->
+	    {badrpc,Reason};
+	{ok,Bin} ->
+	    case rpc:call(DetsNode,file,write_file,[DestFile,Bin],2*5000) of
+		{badrpc,Reason}->
+		    {badrpc,Reason};
+		ok->
+		    ok
+	    end
+    end.
+		
+%% --------------------------------------------------------------------
+%% Function: available_hosts()
+%% Description: Based on hosts.config file checks which hosts are avaible
+%% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
+%% --------------------------------------------------------------------
+
+%% --------------------------------------------------------------------
+%% Function: available_hosts()
+%% Description: Based on hosts.config file checks which hosts are avaible
+%% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
+%% --------------------------------------------------------------------
+setup()->
+  
+    % Simulate host
+  %  R=rpc:call(node(),test_nodes,start_nodes,[],2000),
+%    [Vm1|_]=test_nodes:get_nodes(),
+
+%    Ebin="ebin",
+ %   true=rpc:call(Vm1,code,add_path,[Ebin],5000),
+ 
+   % R.
+    ok.
