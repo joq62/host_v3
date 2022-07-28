@@ -131,7 +131,7 @@ init([]) ->
 	{ok,Nodes}->
 	    case filelib:is_dir("logs") of
 		false->
-		    ok=file:create_dir("./logs");
+		    ok=file:make_dir("./logs");
 		true->
 		    ok
 	    end,
