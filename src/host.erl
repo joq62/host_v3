@@ -141,9 +141,10 @@ init([]) ->
 
 	    application:set_env([{leader_node,[{nodes,Nodes}]}]),
 	    ok=application:start(leader_node),
-	    rpc:cast(node(),leader_node,start_election,[])
+	    rpc:cast(node(),leader_node,start_election,[]),
+	    spawn(fun()->local_desired_state_check() end)
     end,
-    spawn(fun()->local_desired_state_check() end),
+    
     rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
 				 {"OK, started server  ",?MODULE}]), 
    {ok, #state{
