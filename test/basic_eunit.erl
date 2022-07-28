@@ -22,23 +22,34 @@
 %% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
 %% --------------------------------------------------------------------
 start()->
+
     ok=application:start(host),
     io:format("install:etcd()  ~p~n",[install:etcd()]),
-    
-    io:format("servers_alive   ~p~n",[lib_host:which_servers_alive()]),
-    io:format("servers_dead   ~p~n",[lib_host:which_servers_dead()]),
-
-    io:format("host_vms_alive   ~p~n",[lib_host:which_host_vms_alive()]),
-    io:format("host_vms_dead   ~p~n",[lib_host:which_host_vms_dead()]),
+    io:format("install:hosts()  ~p~n",[install:hosts()]),
 
     io:format("hosts_alive   ~p~n",[lib_host:which_hosts_alive()]),
     io:format("hosts_dead   ~p~n",[lib_host:which_hosts_dead()]),
 
-    io:format("c100   ~p~n",[host:is_server_alive("c100")]),
-    io:format("c200   ~p~n",[host:is_server_alive("c200")]),
-    io:format("c201   ~p~n",[host:is_server_alive("c201")]),
-    io:format("c202   ~p~n",[host:is_server_alive("c202")]),
-    io:format("c300   ~p~n",[host:is_server_alive("c300")]),
+    io:format("c200 who_is_leader ~p~n",[rpc:call(c200@c200,leader_node,who_is_leader,[])]),
+
+    rpc:call(c100@c100,init,stop,[]),
+    timer:sleep(2000),
+    
+    io:format("c202 who_is_leader ~p~n",[rpc:call(c202@c202,leader_node,who_is_leader,[])]),
+    
+    
+    
+
+ %   io:format("servers_alive   ~p~n",[lib_host:which_servers_alive()]),
+ %   io:format("servers_dead   ~p~n",[lib_host:which_servers_dead()]),
+
+ %   io:format("host_vms_alive   ~p~n",[lib_host:which_host_vms_alive()]),
+ %   io:format("host_vms_dead   ~p~n",[lib_host:which_host_vms_dead()]),
+
+  
+
+    
+   
     io:format("TEST OK! ~p~n",[?MODULE]),
   %  timer:sleep(1000),
  %   init:stop(),
@@ -51,7 +62,7 @@ start()->
 %% Description: Based on hosts.config file checks which hosts are avaible
 %% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
 %% --------------------------------------------------------------------
-
+    
 
 %% --------------------------------------------------------------------
 %% Function: available_hosts()

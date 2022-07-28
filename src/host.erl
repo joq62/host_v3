@@ -125,7 +125,7 @@ desired_state_check()->
 %%          {stop, Reason}
 %% --------------------------------------------------------------------
 init([]) ->
-  
+    
     {ok, #state{
 	    start_time={date(),time()}
 	   }
@@ -141,8 +141,6 @@ init([]) ->
 %%          {stop, Reason, Reply, State}   | (terminate/2 is called)
 %%          {stop, Reason, State}            (terminate/2 is called)
 %% --------------------------------------------------------------------
-
-
 
 handle_call({is_server_alive,HostName},_From, State) ->
     Reply=lib_host:is_server_alive(HostName),

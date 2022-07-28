@@ -153,13 +153,20 @@ create_load_host(Host)->
 			    {Ip,Port,User,Password,TimeOut}),  
     
     % load and start host 
+    %% 
+    %% Git clone and load host
     App=host,
     {ok,GitPath}=db_application_spec:read(gitpath,"host.spec"),
     ApplDir=filename:join(BaseDir,atom_to_list(App)),
     ok=rpc:call(Node,file,make_dir,[ApplDir]),
     {ok,Dir}=appl:git_clone_to_dir(Node,GitPath,ApplDir),
     ok=appl:load(Node,App,[filename:join([BaseDir,atom_to_list(App),"ebin"])]),
+    
+    %% Set up nodes for leader_node
+    Nodes=db_host_spec:get_all_hostnames(),
+    ok=rpc:call(Node,application,set_env,[[{leader_node,[{nodes,Nodes}]}]],5000),
     ok=appl:start(Node,App),
+    rpc:cast(Node,leader_node,start_election,[]),
     {ok,Node,Dir}.
     
 			  

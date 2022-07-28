@@ -28,14 +28,13 @@ hosts()->
     % This code should be in cluster that creates the initial set up
     % 1.0 Start local and needed applications 
     
-    % Check available hosts
-    HostInfoList=db_host_spec:read_all(),
-    {Available,_Missing}=lib_host:check_hosts_status(HostInfoList),
-    Result=case Available of
+    % Check available servers
+    HostsAlive=lib_host:which_servers_alive(),
+    Result=case HostsAlive of
 	       []->
-		   {error,[no_hosts_available]};
+		   {error,[no_servers_available]};
 	       Available->
-		   CreateResult=[{lib_host:create_load_host(Host),Host}||Host<-Available],
+		   CreateResult=[{lib_host:create_load_host(Host),Host}||Host<-HostsAlive],
 		   % {{ok,Node,Dir},Host}
 		   CreateResult
 		 
