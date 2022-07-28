@@ -138,6 +138,7 @@ is_server_alive(HostName)->
 %% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
 %% --------------------------------------------------------------------
 create_load_host(Host)->
+    io:format("create_load_host(Host) ~p~n",[Host]),
     {Host,Ip,_,Port,User,Password,_}=db_host_spec:read(Host),
     BaseDir=Host,
     NodeName=Host, 
@@ -167,6 +168,7 @@ create_load_host(Host)->
     ok=rpc:call(Node,application,set_env,[[{leader_node,[{nodes,Nodes}]}]],5000),
     ok=appl:start(Node,App),
     ok=rpc:call(Node,application,start,[leader_node]),
+    pong=rpc:call(Node,leader_node,ping,[]),
     rpc:cast(Node,leader_node,start_election,[]),
     {ok,Node,Dir}.
     
