@@ -125,7 +125,9 @@ desired_state_check()->
 %%          {stop, Reason}
 %% --------------------------------------------------------------------
 init([]) ->
-    
+    {ok,Nodes}=application:get_env(nodes),
+    application:set_env([{leader_node,[{nodes,Nodes}]}]),
+    ok=application:start(leader_node),
     {ok, #state{
 	    start_time={date(),time()}
 	   }
