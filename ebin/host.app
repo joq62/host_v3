@@ -5,6 +5,7 @@
               {mod,{host_app,[]}},
               {applications,[kernel,stdlib]},
               {env,[]},
-              {modules,[host,host_app,host_sup,install,lib_host]},
+              {modules,[host,host_app,host_sup,install,lib_host,
+                        orchistrate_host]},
               {licenses,["Apache 2.0"]},
               {links,[]}]}.

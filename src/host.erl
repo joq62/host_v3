@@ -18,7 +18,7 @@
 -define(SERVER,?MODULE).
 -define(LogDir,"logs").
 -define(DeplSpecExtension,".depl_spec").
--define(Interval,30*1000).
+-define(Interval,2*60*1000).
 
 %% External exports
 -export([
@@ -133,6 +133,7 @@ init([]) ->
 	    ok=application:start(leader_node),
 	    rpc:cast(node(),leader_node,start_election,[])
     end,
+    spawn(fun()->local_desired_state_check() end),
     {ok, #state{
 	    start_time={date(),time()}
 	   }
@@ -195,10 +196,8 @@ handle_call(Request, From, State) ->
 %%          {stop, Reason, State}            (terminate/2 is called)
 %% --------------------------------------------------------------------
 
-
-
 handle_cast({desired_state_check}, State) ->
-    spawn(fun()->local_desired_state_check(State#state.deployment_name) end),
+    spawn(fun()->local_desired_state_check() end),
     {noreply, State};
 
 handle_cast(_Msg, State) ->
@@ -245,12 +244,12 @@ code_change(_OldVsn, State, _Extra) ->
 %%% Internal functions
 %% --------------------------------------------------------------------
 
-local_desired_state_check(DeploymentName)->	
+local_desired_state_check()->	
     timer:sleep(?Interval),
-    case leader:am_i_leader(node()) of
+    case leader_node:am_i_leader(node()) of
 	true->
-	    rpc:call(node(),k3_node_orchistrate,desired_state,[DeploymentName],5*60*1000);
+	    rpc:call(node(),orchistrate_host,start,[],60*1000);
 	false ->
 	    ok
     end,
-    rpc:cast(node(),k3_node,desired_state_check,[]).
+    rpc:cast(node(),host,desired_state_check,[]).
