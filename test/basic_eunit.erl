@@ -27,15 +27,13 @@ start()->
     io:format("install:etcd()  ~p~n",[install:etcd()]),
     io:format("install:hosts()  ~p~n",[install:hosts()]),
 
-    io:format("hosts_alive   ~p~n",[lib_host:which_hosts_alive()]),
-    io:format("hosts_dead   ~p~n",[lib_host:which_hosts_dead()]),
- io:format("c100 who_is_leader ~p~n",[rpc:call(c100@c100,leader_node,who_is_leader,[])]),
-
+%    io:format("hosts_alive   ~p~n",[lib_host:which_hosts_alive()]),
+%    io:format("hosts_dead   ~p~n",[lib_host:which_hosts_dead()]),
+    io:format("c100 who_is_leader ~p~n",[rpc:call(c100@c100,leader_node,who_is_leader,[])]),
+    timer:sleep(1000),
     io:format("c200 who_is_leader ~p~n",[rpc:call(c200@c200,leader_node,who_is_leader,[])]),
-
     rpc:call(c100@c100,init,stop,[]),
-    timer:sleep(2000),
-    
+    timer:sleep(1000),
     io:format("c202 who_is_leader ~p~n",[rpc:call(c202@c202,leader_node,who_is_leader,[])]),
     
     
