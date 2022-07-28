@@ -26,7 +26,13 @@ start()->
     ok=application:start(host),
     io:format("install:etcd()  ~p~n",[install:etcd()]),
     io:format("install:hosts()  ~p~n",[install:hosts()]),
+    io:format("dbase_lib:dynamic_install_start(IntialNode) ~p~n",[dbase_lib:dynamic_install_start(c100@c100)]),
+    io:format("c100 install:etcd()  ~p~n",[rpc:call(c100@c100,install,etcd,[])]),
+    io:format("dbase_lib:dynamic_install(Rest,IntialNode) ~p~n",[dbase_lib:dynamic_install ([c200@c200,c202@c202],c100@c100)]),
+    
 
+    io:format("c200 mnesia:system_info  ~p~n",[rpc:call(c200@c200,mnesia,system_info,[])]),
+    
 %    io:format("hosts_alive   ~p~n",[lib_host:which_hosts_alive()]),
 %    io:format("hosts_dead   ~p~n",[lib_host:which_hosts_dead()]),
     io:format("c100 who_is_leader ~p~n",[rpc:call(c100@c100,leader_node,who_is_leader,[])]),
