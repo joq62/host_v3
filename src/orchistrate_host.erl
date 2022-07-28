@@ -34,7 +34,7 @@ start()->
 	       DeadHosts->
 		   rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
 						{"DEBUG,DeadHosts  ",DeadHosts}]),
-		   CreateResult=[{lib_host:create_load_host(Host),Host}||Host<-DeadHosts],
+		   CreateResult=[{Host,create(Host)}||Host<-DeadHosts],
 		   rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
 						{"DEBUG,CreateResult  ",CreateResult}]),
 		   CreateResult
@@ -42,6 +42,13 @@ start()->
 	   end,
     Result.
 
+
+create(Host)->
+    {ok,Node,_Dir}=lib_host:create_load_host(Host),
+    ok=rpc:call(Node,application,start,[etcd]),
+    ok=dbase_lib:dynamic_install([Node],node()),
+    ok.
+    
 %% --------------------------------------------------------------------
 %% Function: available_hosts()
 %% Description: Based on hosts.config file checks which hosts are avaible

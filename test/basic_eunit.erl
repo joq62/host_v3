@@ -26,8 +26,13 @@ start()->
     ok=application:start(host),
     io:format("install:etcd()  ~p~n",[install:etcd()]),
     io:format("install:hosts()  ~p~n",[install:hosts()]),
-    io:format("dbase_lib:dynamic_install_start(IntialNode) ~p~n",[dbase_lib:dynamic_install_start(c100@c100)]),
-    io:format("c100 install:etcd()  ~p~n",[rpc:call(c100@c100,install,etcd,[])]),
+    InitialNode=c100@c100,
+    io:format("dbase_lib:dynamic_install_start(IntialNode) ~p~n",[dbase_lib:dynamic_install_start(InitialNode)]),
+    ok=rpc:call(InitialNode,application,start,[etcd]),
+    ok=db_host_spec:init_table(node(),InitialNode),
+    ok=db_application_spec:init_table(node(),InitialNode),
+    ok=db_deployment_info:init_table(node(),InitialNode),
+    ok=db_deployments:init_table(node(),InitialNode),
     io:format("dbase_lib:dynamic_install(Rest,IntialNode) ~p~n",[dbase_lib:dynamic_install ([c200@c200,c202@c202],c100@c100)]),
     
 
