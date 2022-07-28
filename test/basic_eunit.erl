@@ -50,7 +50,10 @@ start()->
     io:format("c202 who_is_leader ~p~n",[rpc:call(c202@c202,leader_node,who_is_leader,[])]),
      timer:sleep(1000),
     io:format("c202 who_is_leader ~p~n",[rpc:call(c202@c202,leader_node,who_is_leader,[])]),
-     timer:sleep(1000),
+    timer:sleep(1000),
+    io:format("c202 who_is_leader ~p~n",[rpc:call(c202@c202,leader_node,who_is_leader,[])]),
+    rpc:call(c200@c200,init,stop,[]),
+    timer:sleep(1000),
     io:format("c202 who_is_leader ~p~n",[rpc:call(c202@c202,leader_node,who_is_leader,[])]),
     
     

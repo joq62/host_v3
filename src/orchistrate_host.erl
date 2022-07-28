@@ -34,7 +34,7 @@ start()->
 	       DeadHosts->
 		   rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
 						{"DEBUG,DeadHosts  ",DeadHosts}]),
-		   CreateResult=[{Host,create(Host)}||Host<-DeadHosts],
+		   CreateResult=[{Host,spawn(fun()->create(Host) end)}||Host<-DeadHosts],
 		   rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
 						{"DEBUG,CreateResult  ",CreateResult}]),
 		   CreateResult
