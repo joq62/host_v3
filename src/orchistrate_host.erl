@@ -32,7 +32,11 @@ start()->
 	       []->
 		   {ok,desired_state};
 	       DeadHosts->
+		   rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+						{"DEBUG,DeadHosts  ",DeadHosts}]),
 		   CreateResult=[{lib_host:create_load_host(Host),Host}||Host<-DeadHosts],
+		   rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+						{"DEBUG,CreateResult  ",CreateResult}]),
 		   CreateResult
 		 
 	   end,

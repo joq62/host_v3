@@ -125,21 +125,28 @@ desired_state_check()->
 %%          {stop, Reason}
 %% --------------------------------------------------------------------
 init([]) ->
-    {ok,HostName}=net:gethostname(),
-    LogFile=filename:join([HostName,"logs"]),
-    ok=rpc:call(node(),application,start,[nodelog],5000),
-    ok=rpc:call(node(),nodelog,create,[LogFile],5000),
-
     case application:get_env(nodes) of
 	undefined->
 	    started_in_install_mode;
 	{ok,Nodes}->
+	    case filelib:is_dir("logs") of
+		false->
+		    ok=file:create_dir("./logs");
+		true->
+		    ok
+	    end,
+	    LogFile=filename:join(["logs","host_log"]),
+	    ok=rpc:call(node(),application,start,[nodelog],5000),
+	    ok=rpc:call(node(),nodelog,create,[LogFile],5000),
+
 	    application:set_env([{leader_node,[{nodes,Nodes}]}]),
 	    ok=application:start(leader_node),
 	    rpc:cast(node(),leader_node,start_election,[])
     end,
     spawn(fun()->local_desired_state_check() end),
-    {ok, #state{
+    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+				 {"OK, started server  ",?MODULE}]), 
+   {ok, #state{
 	    start_time={date(),time()}
 	   }
     }.
@@ -253,7 +260,9 @@ local_desired_state_check()->
     timer:sleep(?Interval),
     case leader_node:am_i_leader(node()) of
 	true->
-	    rpc:call(node(),orchistrate_host,start,[],60*1000);
+	    R=rpc:call(node(),orchistrate_host,start,[],60*1000),
+	    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+					 {"DEBUG:Result orchistrate_host ",R}]);
 	false ->
 	    ok
     end,
