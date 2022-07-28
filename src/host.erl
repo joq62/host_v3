@@ -130,8 +130,8 @@ init([]) ->
 	    started_in_install_mode;
 	{ok,Nodes}->
 	    application:set_env([{leader_node,[{nodes,Nodes}]}]),
-	    ok=application:start(leader_node),
-	    rpc:cast(node(),leader_node,start_election,[])
+	    ok=application:start(leader_node)
+	   % rpc:cast(node(),leader_node,start_election,[])
     end,
     {ok, #state{
 	    start_time={date(),time()}
