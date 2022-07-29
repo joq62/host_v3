@@ -4,6 +4,7 @@ all:
 	rm -rf Mnesia.*
 	rm -rf _build test_ebin ebin;
 	rm -rf rebar.lock;
+	rm -rf Mnesia.*;
 	mkdir ebin;		
 	rebar3 compile;	
 	cp _build/default/lib/*/ebin/* ebin;
