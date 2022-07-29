@@ -149,16 +149,11 @@ create_load_start_host(Host)->
     {ok,Node,BaseDir,ApplDir}.
 
 create_host_vm(Host)->
-    io:format("create_load_host(Host) ~p~n",[Host]),
+    io:format("DBG ~p~n",[{Host,?MODULE,?FUNCTION_NAME,?LINE}]),
     {Host,Ip,_,Port,User,Password,_}=db_host_spec:read(Host),
     BaseDir=Host,
     NodeName=Host, 
     TimeOut=7000,    
-    
-
-
-
-lib_host:create_host_vm(Host),
     
     Cookie=atom_to_list(erlang:get_cookie()),
     
@@ -173,6 +168,7 @@ lib_host:create_host_vm(Host),
     {ok,Node,BaseDir}.
 
 git_load_host(Node,BaseDir)->
+    io:format("DBG ~p~n",[{Node,BaseDir,?MODULE,?FUNCTION_NAME,?LINE}]),
     App=host,
     {ok,GitPath}=db_application_spec:read(gitpath,"host.spec"),
     ApplDir=filename:join(BaseDir,atom_to_list(App)),
@@ -182,6 +178,7 @@ git_load_host(Node,BaseDir)->
     {ok,Dir}.
 
 init_host_apps(Node)->
+    io:format("DBG ~p~n",[{Node,?MODULE,?FUNCTION_NAME,?LINE}]),
     App=host,
     %% Set up nodes for leader_node                                    
     Nodes=[list_to_atom(HostName++"@"++HostName)||HostName<-db_host_spec:get_all_hostnames()],

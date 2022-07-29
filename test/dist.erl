@@ -25,7 +25,7 @@ start()->
     ok=setup(),
 
     install:init_node(),
- 
+    install:hosts(),
   
     io:format("TEST OK! ~p~n",[?MODULE]),
     timer:sleep(1000),
