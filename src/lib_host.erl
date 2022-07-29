@@ -30,8 +30,10 @@
 	 check_hosts_status/1,
 	 
 	 
-
-	 create_load_host/1
+	 create_host_vm/1,
+	 git_load_host/2,
+	 init_host_apps/1,
+	 create_load_start_host/1
 	]).
 %% --------------------------------------------------------------------
 %% Include files
@@ -140,12 +142,24 @@ is_server_alive(HostName)->
 %% Description: Based on hosts.config file checks which hosts are avaible
 %% Returns: List({HostId,Ip,SshPort,Uid,Pwd}
 %% --------------------------------------------------------------------
-create_load_host(Host)->
+create_load_start_host(Host)->
+    {ok,Node,BaseDir}=create_host_vm(Host),
+    {ok,ApplDir}=git_load_host(Node,BaseDir),
+    ok=init_host_apps(Node),
+    {ok,Node,BaseDir,ApplDir}.
+
+create_host_vm(Host)->
     io:format("create_load_host(Host) ~p~n",[Host]),
     {Host,Ip,_,Port,User,Password,_}=db_host_spec:read(Host),
     BaseDir=Host,
     NodeName=Host, 
-    TimeOut=7000,
+    TimeOut=7000,    
+    
+
+
+
+lib_host:create_host_vm(Host),
+    
     Cookie=atom_to_list(erlang:get_cookie()),
     
     %% Create host vm
@@ -156,21 +170,24 @@ create_load_host(Host)->
     {ok,Node}=vm:ssh_create(Host,NodeName,Cookie,PaArgs,EnvArgs,
 			    {Ip,Port,User,Password,TimeOut}),  
     
-    % load and start host 
-    %% 
-    %% Git clone and load host
+    {ok,Node,BaseDir}.
+
+git_load_host(Node,BaseDir)->
     App=host,
     {ok,GitPath}=db_application_spec:read(gitpath,"host.spec"),
     ApplDir=filename:join(BaseDir,atom_to_list(App)),
     ok=rpc:call(Node,file,make_dir,[ApplDir]),
     {ok,Dir}=appl:git_clone_to_dir(Node,GitPath,ApplDir),
     ok=appl:load(Node,App,[filename:join([BaseDir,atom_to_list(App),"ebin"])]),
-    
+    {ok,Dir}.
+
+init_host_apps(Node)->
+    App=host,
     %% Set up nodes for leader_node                                    
     Nodes=[list_to_atom(HostName++"@"++HostName)||HostName<-db_host_spec:get_all_hostnames()],
     ok=rpc:call(Node,application,set_env,[[{host,[{nodes,Nodes}]}]],5000),
-    ok=appl:start(Node,App),
-    {ok,Node,Dir}.
+    rpc:call(Node,application,start,[etcd]),
+    appl:start(Node,App).
     
 			  
 

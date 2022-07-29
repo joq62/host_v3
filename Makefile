@@ -17,6 +17,7 @@ eunit:
 	rm -rf _build logs *.service_dir;
 	rm -rf rebar.lock;
 	rm -rf  host_info_specs deployments application_info_specs deployment_info_specs;
+	rm -rf Mnesia.*;
 	rm -rf ebin;
 	mkdir test_ebin;
 	mkdir ebin;
@@ -30,4 +31,4 @@ eunit:
 	rebar3 compile;
 	cp _build/default/lib/*/ebin/* ebin;
 	erlc -o test_ebin test/*.erl;
-	erl -pa ebin -pa test_ebin -sname test -run basic_eunit start -setcookie test_cookie -hidden
+	erl -pa ebin -pa test_ebin -sname test -run $(m) start -setcookie test_cookie -hidden

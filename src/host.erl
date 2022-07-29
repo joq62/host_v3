@@ -25,7 +25,6 @@
 
 	 install/0,
 	 
-
 	 is_server_alive/1,
 	 check_host_status/1,
 	 create_load_host/1,
@@ -128,7 +127,7 @@ init([]) ->
     case application:get_env(nodes) of
 	undefined->
 	    started_in_install_mode;
-	{ok,Nodes}->
+	{ok,Nodes}-> 
 	    case filelib:is_dir("logs") of
 		false->
 		    ok=file:make_dir("./logs");
